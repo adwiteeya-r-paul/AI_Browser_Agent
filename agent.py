@@ -9,9 +9,9 @@ import subprocess
 import sys
 
 try:
-    with st.spinner("Installing Playwright browsers..."):
+    with st.spinner("Setting up your agent..."):
         subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"])
-    st.success("Playwright browsers installed successfully!")
+    st.success("Agent is here!")
 except subprocess.CalledProcessError as e:
     st.error(f"Error installing Playwright browsers: {e}")
 except FileNotFoundError:
@@ -39,7 +39,7 @@ async def search(link: str, query: dict) -> pd.DataFrame:
         await page.goto(link)
 
         if link == "https://www.linkedin.com/jobs/search/":
-            what = page.locator("input[aria-label='Search by title, skill, or company']")
+            what = page.locator("input[aria-label='Title, skill, or company']")
             where = page.locator("input[aria-label='Search by location']")
 
             await what.fill(search_query)
@@ -152,7 +152,7 @@ async def main_async_flow():
             try:
                 job_criteria = await query_groq(user_query)
                 st.success("Job criteria extracted successfully!")
-                st.json(job_criteria)
+                
 
                 st.info("Starting web scraper...")
                 df_results = await search("https://www.linkedin.com/jobs/search/", job_criteria)
@@ -176,4 +176,5 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
