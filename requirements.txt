@@ -3,4 +3,3 @@ playwright
 pandas
 groq
 python-dotenv
-playwright-install
