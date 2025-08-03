@@ -104,7 +104,7 @@ async def main_async_flow():
             try:
                 groq_response_json = await query_groq(user_query)
                 st.success("Job criteria extracted successfully!")
-                st.json(groq_response_json)
+                
 
                 job_criteria = json.loads(groq_response_json)
                 
@@ -182,6 +182,7 @@ async def query_groq(prompt: str) -> str:
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
