@@ -4,7 +4,6 @@ import asyncio
 import os
 import json
 import re
-import time
 import subprocess
 import sys
 
@@ -24,7 +23,8 @@ groq_client = Groq(api_key="gsk_zY4dgmjbwshiIqZYWD3uWGdyb3FYUAy3I3tE9aoeMcMOW0n3
 
 async def search(link: str, query: dict) -> pd.DataFrame:
     df_list = []
-    
+
+    # Build search query
     search_items = []
     if query.get('job_title'): search_items.append(query['job_title'])
     if query.get('keywords'): search_items.extend(query['keywords'])
@@ -32,22 +32,21 @@ async def search(link: str, query: dict) -> pd.DataFrame:
     search_query = " ".join(search_items)
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.newContext()
-        page = await context.newPage()
+        browser: Browser = await p.chromium.launch(headless=True)
+        context: BrowserContext = await browser.new_context()
+        page: Page = await context.new_page()
 
         await page.goto(link)
 
         if link == "https://www.linkedin.com/jobs/search/":
-            page.getByLabel("Title, skill or company").fill(search_query)
-            page.getByLabel("City, state or zip code").fill(search_query)
+            # Use Playwright's modern get_by_placeholder and get_by_label API
+            await page.get_by_placeholder("Title, skill, or company").fill(search_query)
+            if query.get('location'):
+                await page.get_by_label("City, state, or zip code").fill(query['location'])
 
-
-            
             await page.keyboard.press("Enter")
-            
 
-
+            # Wait for job cards to load
             try:
                 await page.wait_for_selector("div[data-results-list-top-scroll-sentinel] + ul li", timeout=15000)
                 job_cards = page.locator("div[data-results-list-top-scroll-sentinel] + ul li")
@@ -57,6 +56,7 @@ async def search(link: str, query: dict) -> pd.DataFrame:
                 st.error(f"No results found or an error occurred: {e}")
                 job_count = 0
 
+            # Scrape job data
             if job_count > 0:
                 for i in range(job_count):
                     card = job_cards.nth(i)
@@ -64,13 +64,10 @@ async def search(link: str, query: dict) -> pd.DataFrame:
                         card_link = card.locator("a")
                         title = await card_link.get_attribute("aria-label")
                         url = await card_link.get_attribute("href")
-                        
-                        company_container = card.locator("div.artdeco-entity-lockup__subtitle")
-                        company = await company_container.locator("span").inner_text()
-                        
-                        location_container = card.locator("ul.job-card-container__metadata-wrapper")
-                        location = await location_container.locator("li span").inner_text()
-                        
+
+                        company = await card.locator("div.artdeco-entity-lockup__subtitle span").inner_text()
+                        location = await card.locator("ul.job-card-container__metadata-wrapper li span").inner_text()
+
                         df_list.append({
                             "Title": title,
                             "URL": url,
@@ -80,10 +77,10 @@ async def search(link: str, query: dict) -> pd.DataFrame:
                     except Exception as e:
                         st.warning(f"Error scraping card {i+1}: {e}")
                         continue
-        
+
         await context.close()
         await browser.close()
-    
+
     return pd.DataFrame(df_list, columns=["Title", "URL", "Company", "Location"])
 
 async def query_groq(prompt: str) -> dict:
@@ -118,9 +115,9 @@ async def query_groq(prompt: str) -> dict:
     )
 
     response_text = response.choices[0].message.content.strip()
-    
+
     json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-    
+
     if json_match:
         valid_json_string = json_match.group(0)
         try:
@@ -133,6 +130,7 @@ async def query_groq(prompt: str) -> dict:
         st.error("Groq response did not contain a valid JSON object.")
         raise ValueError("Groq response missing JSON.")
 
+# Streamlit UI
 st.set_page_config(
     page_title="Job Search Criteria Extractor",
     page_icon=":mag_right:",
@@ -151,42 +149,6 @@ async def main_async_flow():
         with st.spinner("Processing your query..."):
             try:
                 job_criteria = await query_groq(user_query)
-                st.success("Job criteria extracted successfully!")
-                
-
-                st.info("Starting web scraper...")
-                df_results = await search("https://www.linkedin.com/jobs/search/", job_criteria)
-
-                if not df_results.empty:
-                    st.success("Scraping complete!")
-                    st.dataframe(df_results, use_container_width=True)
-                    
-                    csv = df_results.to_csv(index=False).encode('utf-8')
-                    st.download_button(
-                        label="Download CSV",
-                        data=csv,
-                        file_name='search_results.csv',
-                        mime='text/csv',
-                    )
-                else:
-                    st.warning("No job listings were found matching your criteria.")
-
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
-
-if st.button("Get Set Go!"):
-    asyncio.run(main_async_flow())
-
-
-
-
-
-
-
-
-
-
-
 
 
 
