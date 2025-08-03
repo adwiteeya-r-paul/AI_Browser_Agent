@@ -39,7 +39,8 @@ async def search(link: str, query: dict) -> pd.DataFrame:
         await page.goto(link)
 
         if link == "https://www.linkedin.com/jobs/search/":
-            what = page.locator("input[aria-label='Title, skill, or company']")
+            # --- UPDATED LOCATOR HERE ---
+            what = page.getByPlaceholder("Search by title, skill, or company")
             where = page.locator("input[aria-label='Search by location']")
 
             await what.fill(search_query)
@@ -47,6 +48,8 @@ async def search(link: str, query: dict) -> pd.DataFrame:
                 await where.fill(query['location'])
             
             await page.keyboard.press("Enter")
+            
+            # ... (rest of the code is unchanged) ...
 
             try:
                 await page.wait_for_selector("div[data-results-list-top-scroll-sentinel] + ul li", timeout=15000)
@@ -176,5 +179,6 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
