@@ -10,7 +10,7 @@ from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 from groq import Groq
 from groq import Groq as GroqClient
 
-groq_client = GroqClient(api_key=st.secrets['GROQ_API'])
+groq_client = GroqClient(api_key=st.secrets[GROQ_API])
 
 # Playwright scraping function
 # This function scrapes job listings from LinkedIn based on the user's query.
@@ -167,5 +167,6 @@ async def query_groq(prompt: str) -> str:
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
