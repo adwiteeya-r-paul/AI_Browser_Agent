@@ -9,7 +9,7 @@ import time
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 from groq import Groq
 
-groq_client = Groq(api_key=st.secrets["GROQ_API"])
+groq_client = Groq(api_key="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")
 
 async def search(link: str, query: dict) -> pd.DataFrame:
     df_list = []
@@ -165,3 +165,4 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
