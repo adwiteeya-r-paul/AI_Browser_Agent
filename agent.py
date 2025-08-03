@@ -5,11 +5,22 @@ import os
 import json
 import re
 import time
+import subprocess
+import sys
+
+try:
+    with st.spinner("Installing Playwright browsers..."):
+        subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"])
+    st.success("Playwright browsers installed successfully!")
+except subprocess.CalledProcessError as e:
+    st.error(f"Error installing Playwright browsers: {e}")
+except FileNotFoundError:
+    st.error("Playwright is not installed. Please add 'playwright' to your requirements.txt.")
 
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 from groq import Groq
 
-groq_client = Groq(api_key="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")
+groq_client = Groq(api_key=st.secrets["GROQ_API"])
 
 async def search(link: str, query: dict) -> pd.DataFrame:
     df_list = []
@@ -165,4 +176,3 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
-
