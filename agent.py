@@ -149,6 +149,37 @@ async def main_async_flow():
         with st.spinner("Processing your query..."):
             try:
                 job_criteria = await query_groq(user_query)
+                st.success("Job criteria extracted successfully!")
+
+                st.info("Starting web scraper...")
+                df_results = await search("https://www.linkedin.com/jobs/search/", job_criteria)
+
+                if not df_results.empty:
+                    st.success("Scraping complete!")
+                    st.dataframe(df_results, use_container_width=True)
+
+                    csv = df_results.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="Download CSV",
+                        data=csv,
+                        file_name='search_results.csv',
+                        mime='text/csv',
+                    )
+                else:
+                    st.warning("No job listings were found matching your criteria.")
+
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+
+if st.button("Get Set Go!"):
+    asyncio.run(main_async_flow())
+
+
+
+
+
+
+
 
 
 
