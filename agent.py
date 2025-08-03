@@ -133,7 +133,7 @@ async def main_async_flow():
 # This function sends the user's query to the Groq API to extract job search criteria.
 
 async def query_groq(prompt: str) -> str:
-    system_prompt = """You are an expert at extracting job search criteria from a user's natural language query. Your task is to identify and extract the job title, keywords, location, and job type (e.g., 'remote', 'hybrid', 'on-site').
+    system_prompt = "You are an expert at extracting job search criteria from a user's natural language query. Your task is to identify and extract the job title, keywords, location, and job type (e.g., 'remote', 'hybrid', 'on-site').
     The output should be a JSON object with the following keys:
     - 'job_title': (a string, or null if not specified)
     - 'keywords': (an array of strings)
@@ -167,6 +167,7 @@ async def query_groq(prompt: str) -> str:
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
