@@ -32,8 +32,9 @@ async def search(link: str, query: dict) -> pd.DataFrame:
     search_query = " ".join(search_items)
 
     async with async_playwright() as p:
-        browser: Browser = await p.chromium.launch(headless=True)
-        context: BrowserContext = await browser.new_context()
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.newContext()
+        page = await context.newPage()
 
         await page.goto(link)
 
@@ -175,6 +176,7 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
