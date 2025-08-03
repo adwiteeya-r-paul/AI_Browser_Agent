@@ -3,14 +3,14 @@
 import streamlit as st
 import pandas as pd
 import asyncio
-import os
 import json
 import time
 
-from dotenv import load_dotenv
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 from groq import Groq
 from groq import Groq as GroqClient
+
+groq_client = GroqClient(api_key=st.secrets["GROQ_API"])
 
 # Playwright scraping function
 # This function scrapes job listings from LinkedIn based on the user's query.
@@ -83,9 +83,6 @@ async def search(link, query):
 # Streamlit UI 
 # This section sets up the Streamlit app and handles user input.
 
-load_dotenv()
-GROQ_API = os.getenv('GROQ_API')
-groq_client = GroqClient(api_key=GROQ_API)
 
 st.set_page_config(
     page_title="Job Search Criteria Extractor",
@@ -170,3 +167,4 @@ async def query_groq(prompt: str) -> str:
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
