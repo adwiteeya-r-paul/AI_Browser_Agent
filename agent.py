@@ -162,11 +162,27 @@ async def query_groq(prompt: str) -> str:
         max_tokens=500,
         temperature=0.2
     )
+
+    response_text = response.choices[0].message.content.strip()
     
-    return response
+    # Step 3 & 4: Clean the string and parse it into a dictionary
+    json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+    
+    if json_match:
+        valid_json_string = json_match.group(0)
+        try:
+            response_dict = json.loads(valid_json_string)
+            return response_dict
+        except json.JSONDecodeError as e:
+            st.error(f"Failed to decode JSON from Groq: {e}")
+            raise e
+    else:
+        st.error("Groq response did not contain a valid JSON object.")
+        raise ValueError("Groq response missing JSON.")
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
