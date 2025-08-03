@@ -39,12 +39,10 @@ async def search(link: str, query: dict) -> pd.DataFrame:
         await page.goto(link)
 
         if link == "https://www.linkedin.com/jobs/search/":
-            what = page.locator('input[placeholder="Title, skill or company"]')
-            where = page.locator('input[placeholder="City, state or zip code"]')
+            page.getByLabel("Title, skill or company").fill(search_query)
+            page.getByLabel("City, state or zip code").fill(search_query)
 
-            await what.fill(search_query)
-            if query.get('location'):
-                await where.fill(query['location'])
+
             
             await page.keyboard.press("Enter")
             
@@ -178,6 +176,7 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
