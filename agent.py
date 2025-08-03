@@ -163,11 +163,11 @@ async def query_groq(prompt: str) -> str:
         temperature=0.2
     )
     
-    response_text = response.choices[0].message.content.strip()
-    return response_text.json()
+    return response
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
