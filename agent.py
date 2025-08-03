@@ -39,8 +39,8 @@ async def search(link: str, query: dict) -> pd.DataFrame:
         await page.goto(link)
 
         if link == "https://www.linkedin.com/jobs/search/":
-            what = page.locator('placeholder="Title, skill, or company"')
-            where = page.locator('aria-label="City, state, or zip code"')
+            what = page.locator('INPUT placeholder="Title, skill, or company"')
+            where = page.locator('INPUT aria-label="City, state, or zip code"')
 
             await what.fill(search_query)
             if query.get('location'):
@@ -178,6 +178,7 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
