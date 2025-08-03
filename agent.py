@@ -34,7 +34,6 @@ async def search(link: str, query: dict) -> pd.DataFrame:
     async with async_playwright() as p:
         browser: Browser = await p.chromium.launch(headless=True)
         context: BrowserContext = await browser.new_context()
-        page: Page = await context.new_page()
 
         await page.goto(link)
 
@@ -176,6 +175,7 @@ async def main_async_flow():
 
 if st.button("Get Set Go!"):
     asyncio.run(main_async_flow())
+
 
 
 
